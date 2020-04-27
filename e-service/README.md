@@ -2,37 +2,22 @@
 
 英语学习数据接口服务
 
-## QuickStart
-
-<!-- add docs here for user -->
-
-see [egg docs][egg] for more detail.
-
-### Development
-
-```bash
-$ npm i
-$ npm run dev
-$ open http://localhost:7001/
-```
-
-### Deploy
-
-```bash
-$ npm start
-$ npm stop
-```
-
-### npm scripts
-
-- Use `npm run lint` to check code style.
-- Use `npm test` to run unit test.
-- Use `npm run autod` to auto detect dependencies upgrade, see [autod](https://www.npmjs.com/package/autod) for more detail.
-
-
-[egg]: https://eggjs.org
-
-
 
 ### 接口步骤
 1. 先连接数据库，配置一下。  egg-mysql
+
+
+### 关于要实现哪些接口
+- 后台管理。按类来分类
+1. 管理员 登录
+2. 单词资源
+3. 视频课程
+4. 用户管理
+5. 作文真题
+6. 指导材料
+
+- 小程序接口
+1. 用户登录，录入数据库
+2. 单词调用，定制单词表接口
+3. 用户学习记录
+4. 拉取单词信息，拉取视频信息。。。
