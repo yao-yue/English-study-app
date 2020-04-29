@@ -5,11 +5,12 @@ module.exports = app => {
 
     //单词对象
     router.get('/admin/getWordList', controller.admin.word.getWordList)
-    router.post('/admin/addBatchWord', controller.admin.word.addBatchWord)
+    router.post('/admin/uploadWord', controller.admin.word.uploadWord)
     router.put('/admin/editWordById', controller.admin.word.editWordById)
-    router.delete('/admin/deleteWordById',controller.admin.word.deleteWordById)
-    //后面可能需要考虑批量删除单词的接口
+    router.delete('/admin/deleteWordById/:id',controller.admin.word.deleteWordById)
     router.get('/admin/searchWordByName',controller.admin.word.searchWordByName)
+    router.delete('/admin/batchDelete',controller.admin.word.batchDelete)
+    router.put('/admin/deduplication', controller.admin.word.deduplication)
 
     //视频对象
     router.get('/admin/getVideoList', controller.admin.video.getVideoList)
