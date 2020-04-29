@@ -12,6 +12,7 @@ import {
   EditOutlined
 } from '@ant-design/icons';
 import '../static/css/AdminIndex.css'
+import Word from './words/Word';
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -100,6 +101,7 @@ function AdminIndex(props) {
               <Route path="/index/add/:id" exact component={AddArticle} />
               <Route path="/index/list" component={ArticleList} />
               <Route path="/index/video" component={Video} />
+              <Route path="/index/word" component={Word} />
             </div>
           </div>
         </Content>

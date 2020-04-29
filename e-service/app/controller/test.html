@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试egg上传文件</title>
+</head>
+<body>
+    <h1>you can upload your file in here</h1>
+    <form method="POST" action="http:127.0.0.1:7001/upload?_csrf={{ ctx.csrf | safe }}" enctype="multipart/form-data">
+        title: <input name="title" />
+        file: <input name="file" type="file" />
+        <button type="submit">Upload</button>
+      </form>
+</body>
+</html>

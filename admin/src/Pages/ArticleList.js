@@ -71,7 +71,6 @@ function ArticleList(props) {
           title: '浏览量',
           dataIndex: 'viewCount',
           key: 'viewCount',
-
         },
         {
           title: '操作',

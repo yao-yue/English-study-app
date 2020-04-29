@@ -44,6 +44,10 @@ module.exports = appInfo => {
     allowMethods: 'GET,PUT,DELETE,POST,OPTIONS'
   }
 
+  //开启上传文件配置
+  config.multipart = {
+    mode: 'file'
+  }
 
   // add your user config here
   const userConfig = {

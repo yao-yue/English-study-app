@@ -8,6 +8,8 @@ class WordController extends Controller {
 
     //批量添加单词
     async addBatchWord() {
+        // 或许可以在这个接口上得到上传的文件。
+
         //获取数据、 处理数据、 保存数据
         this.ctx.body = { msg: '通过文件来添加单词'}
     }  
