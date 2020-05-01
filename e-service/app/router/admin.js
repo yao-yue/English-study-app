@@ -6,11 +6,12 @@ module.exports = app => {
     //单词对象
     router.get('/admin/getWordList', controller.admin.word.getWordList)
     router.post('/admin/uploadWord', controller.admin.word.uploadWord)
-    router.put('/admin/editWordById', controller.admin.word.editWordById)
+    router.put('/admin/editWordById/:id', controller.admin.word.editWordById)
     router.delete('/admin/deleteWordById/:id',controller.admin.word.deleteWordById)
+    router.get('/admin/searchWordById/:id', controller.admin.word.searchWordById)
     router.get('/admin/searchWordByName',controller.admin.word.searchWordByName)
-    router.delete('/admin/batchDelete',controller.admin.word.batchDelete)
-    router.put('/admin/deduplication', controller.admin.word.deduplication)
+    router.delete('/admin/batchDeleteWord',controller.admin.word.batchDeleteWord)
+    router.put('/admin/wordDeduplication', controller.admin.word.wordDeduplication)
 
     //视频对象
     router.get('/admin/getVideoList', controller.admin.video.getVideoList)

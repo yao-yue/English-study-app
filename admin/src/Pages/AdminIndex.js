@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Route, Link, Redirect } from "react-router-dom";
-import AddArticle from './AddArticle'
-import ArticleList from './ArticleList'
 import Video from './videos/Video'
 import { Layout, Menu, Breadcrumb, Button } from 'antd';
 import {
@@ -20,9 +18,34 @@ const { SubMenu } = Menu;
 
 function AdminIndex(props) {
   const [collapsed, setCollapsed] = useState(false)
+  const [wordList, setWordList] = useState([])
   const onCollapse = collapsed => {
     setCollapsed(collapsed)
+  };  
+
+  //拉取单词数据
+
+  //面包屑配置
+  const breadcrumbNameMap = {
+    '/index': '后台管理',
+    '/index/word': '单词管理',
+    '/index/video': '视频管理',
   };
+  const pathSnippets = props.location.pathname.split('/').filter(i => i)
+  const extraBreadcrumbItems = pathSnippets.map((_, index) => {
+    const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
+    return (
+      <Breadcrumb.Item key={url}>
+        <Link to={url}>{breadcrumbNameMap[url]}</Link>
+      </Breadcrumb.Item>
+    );
+  });
+    const breadcrumbItems = [
+      <Breadcrumb.Item key="index">
+        <Link to="/">首页</Link>
+      </Breadcrumb.Item>,
+    ].concat(extraBreadcrumbItems);
+
 
   const handleClickArticle = e => {
     if (e.key === 'addArticle') {
@@ -55,7 +78,7 @@ function AdminIndex(props) {
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline"> 
           <Menu.Item key="1">
           <FileWordOutlined />
-            <Link to="/index">单词管理</Link>
+            <Link to="/index/word">单词管理</Link>
           </Menu.Item>
           <Menu.Item key="2">
           <VideoCameraOutlined />
@@ -89,17 +112,10 @@ function AdminIndex(props) {
           <Button onClick={signOut} style={{position:"absolute",right:"30px",bottom:"10px"}}>退出登录</Button>
         </Header>
         <Content style={{ margin: '0 16px' }}>
-          <Breadcrumb style={{ margin: '16px 0' }}>
-            <Breadcrumb.Item>后台管理</Breadcrumb.Item>
-            <Breadcrumb.Item>视频课程管理</Breadcrumb.Item>
-          </Breadcrumb>
+          <Breadcrumb style={{ margin: '16px 0' }}>{breadcrumbItems}</Breadcrumb>
           <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
             <div>
               {/* 这个页面的子路由 */}
-              <Route path="/index" exact component={AddArticle} />
-              <Route path="/index/add" exact component={AddArticle} />
-              <Route path="/index/add/:id" exact component={AddArticle} />
-              <Route path="/index/list" component={ArticleList} />
               <Route path="/index/video" component={Video} />
               <Route path="/index/word" component={Word} />
             </div>

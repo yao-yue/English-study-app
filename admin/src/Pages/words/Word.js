@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, message, Button, Table, Input, Row, Col, Upload } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import { getWordList, batchDeleteWord, deleteWordById, searchWordByName, searchWordById, wordDeduplication } from '../../api'
+import EditForm from './EditForm'
 const { confirm } = Modal;
+const { Search} = Input
 
 
 
 function Word(props) {
 
   const [list, setList] = useState([])
+  const [showModel, setShowModel] = useState(false)
+  const [currentEditWord, setCurrentEditWord] = useState({})
   //上传配置
   const UpLoadconfig = {
     name: 'file',
-    action: 'http://127.0.0.1:7001/upload',  //上传的地址
+    action: 'http://127.0.0.1:7001/admin/uploadWord',  //上传的地址
     headers: {
       authorization: 'authorization-text',
     },
@@ -21,76 +26,92 @@ function Word(props) {
       }
       if (info.file.status === 'done') {
         message.success(`${info.file.name} file uploaded successfully`);
+        //重新拉取单词数据
+        getList()
+        setTimeout(() => {
+          if(list.length === 0 ) {
+            message.info('如果上传文件较大，请稍后刷新页面')
+          }
+        }, 1000)
       } else if (info.file.status === 'error') {
         message.error(`${info.file.name} file upload failed.`);
       }
     },
   };
 
-  //得到文章列表
+  //获取单词列表
   const getList = async () => {
-    // const res = await getArticleList()
-    // 公开课、专项课、系统提分课
-    const res = {
-      list: [
-        {
-          "id": 1,
-          "wordName": "vacant",
-          "phonetic": "[ˈveikənt]",
-          "vioce": "http://res.iciba.com/resource/amp3/oxford/0/e0/72/e0725637cb42ae9e775b6d0c8fa041da.mp3",
-          "wordExplain": "adj. 空的；（职位等）空缺的；茫然的"
-        },
-        {
-          "id": 2,
-          "wordName": "linen",
-          "phonetic": "[ˈlinin]",
-          "vioce": "http://res.iciba.com/resource/amp3/oxford/0/ea/b7/eab7384fed26f209f8d4de9c927e3327.mp3",
-          "wordExplain": "n. 亚麻布，亚麻布制品；家庭日用织品"
-        },
-        {
-          "id": 3,
-          "wordName": "hectic",
-          "phonetic": "[ˈhektɪk]",
-          "vioce": "http://res.iciba.com/resource/amp3/oxford/0/83/a2/83a25f53e60eb12112bc778a6302e5db.mp3",
-          "wordExplain": "adj. 紧张忙碌的；忙乱的"
-        },
-        {
-          "id": 4,
-          "wordName": "fossil",
-          "phonetic": "[ˈfɔsl]",
-          "vioce": "http://res.iciba.com/resource/amp3/0/0/bd/2a/bd2ad056056683306b5730e3f2e8ff13.mp3",
-          "wordExplain": "n. 化石"
-        },
-        {
-          "id": 5,
-          "wordName": "modish",
-          "phonetic": "[ˈməʊdɪʃ]",
-          "vioce": "http://res.iciba.com/resource/amp3/oxford/0/cc/1d/cc1d6be1b16c50a1a7519ff0f5ae2bb5.mp3",
-          "wordExplain": "adj. 时髦的"
-        },
-        {
-          "id": 6,
-          "wordName": "distraction",
-          "phonetic": "[dɪˈstrækʃən]",
-          "vioce": "http://res.iciba.com/resource/amp3/oxford/0/00/4e/004ee62d9877e92ebf6128f7989028d1.mp3",
-          "wordExplain": "n. 娱乐，消遣；分心的事物"
-        },
-      ]
-    }
-    if (res.list) {
-      for (let item of res.list) {
+    const result = await getWordList()
+    const wordList = result.wordList ? result.wordList : ''
+    if (result.status === 200) {
+      for (let item of wordList) {
         item.key = item.id
       }
-      setList(res.list)
+      setList(wordList)
+    } else if (result.status === 404) {
+      //更新页面
+      setList([])
+      message.info('单词库空空如也')
     } else {
-      message.error('网络错误')
+      message.error('网络错误,获取单词列表失败')
     }
   }
+  //清除所有单词
+  const clearList = async () => {
+    console.log('hello')
+    confirm({
+      title: '确定要清空单词库?',
+      content: '如果你点击OK按钮，数据库中的单词将会全部删除，无法恢复。',
+      async onOk() {
+        const res = await batchDeleteWord()
+        if (res.status === 200) {
+          message.success('单词删除成功')
+          //重新拉取数据，更新页面
+          getList()
+        } else {
+          message.error(res.msg)
+        }
+      },
+      onCancel() {
+        message.success('已撤销删除')
+      },
+    })
+  }
+  //通过id删除单词
+  const deleteWord = async (id) => {
+    const res = await deleteWordById(id)
+    if (res.status == 200) {
+      //重新拉取数据，更新页面
+      getList()
+      message.success('删除成功')
+    } else {
+      message.error(res.msg)
+    }
+  }
+  //通过名称搜索单词
+  const wordName2data = async(wordName) => {
+    const res = await searchWordByName(wordName)
+    if(res.status === 200) {
+      let word = res.word
+      word.key = 1
+      setList([word])
+    }else {
+      message.error('没有这个单词')
+    }
+  }
+  //通过id获取单词信息，并填充到编辑表单
+  const id2Word = async(id) => {
+    const res = await searchWordById(id)
+    if(res.word) {
+      setCurrentEditWord(res.word)
+      setShowModel(true)
+    }
+  }
+
   useEffect(() => {
     getList()
   }, [])
 
-  //删除文章的方法
 
   const columns = [
     {
@@ -122,8 +143,10 @@ function Word(props) {
       key: 'action',
       render: (id) => (
         <div>
-          <Button type="primary" onClick={() => { }}>编辑</Button>&nbsp;
-          <Button onClick={() => { }}>删除</Button>
+          <Button type="primary" onClick={() => {
+            id2Word(id)
+          }}>编辑</Button>&nbsp;
+          <Button onClick={() => deleteWord(id)}>删除</Button>
         </div>
       ),
     },
@@ -131,24 +154,34 @@ function Word(props) {
   return (
     <div>
       <Row style={{ marginBottom: '10px' }}>
-        <Col span={5} >
-          <Input />
+        <Col span={6} >
+          <Search
+            enterButton="Search"
+            onSearch={value => wordName2data(value)}
+          />
         </Col>
-        <Col span={3} >
-          <Button style={{ marginLeft: '10px' }} type="primary">搜索</Button>
+        <Col span={3} push={11}>
+          <Button danger onClick={clearList}>清除所有单词</Button>
         </Col>
-        <Col span={3} push={13}>
+        <Col span={3} push={11}>
           <Upload {...UpLoadconfig}>
-            <Button><UploadOutlined /> 上传单词</Button>
+            <Button type="primary"><UploadOutlined /> 上传单词</Button>
           </Upload>
-          {/* <form method="POST" action="http:127.0.0.1:7001/upload?_csrf={{ ctx.csrf | safe }}" enctype="multipart/form-data">
-        title: <input name="title" />
-        file: <input name="file" type="file" />
-        <button type="submit">Upload</button>
-      </form> */}
         </Col>
       </Row>
       <Table dataSource={list} columns={columns} />
+      <Modal
+          title="编辑单词"
+          visible={showModel}
+          footer={null}
+          onCancel={() => {setShowModel(false)}}
+        >
+          <EditForm
+            word={currentEditWord}
+            setShowModel={setShowModel}
+            getList={getList}
+          />
+        </Modal>
     </div>
   )
 }

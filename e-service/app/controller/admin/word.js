@@ -5,7 +5,7 @@ const Controller = require('egg').Controller
 class WordController extends Controller {
     async getWordList() {
         const wordList = await this.app.mysql.query(`select * from words`)
-        if(wordList.length > 0) {
+        if (wordList.length > 0) {
             this.ctx.body = { status: 200, wordList }
         } else {
             this.ctx.body = { status: 404, msg: '请求的资源不存在' }
@@ -41,17 +41,28 @@ class WordController extends Controller {
     //对某个单词进行编辑修正
     async editWordById() {
         //获取传过来的单词id、对这个单词的数据进行编辑
-        this.ctx.body = { msg: '对某个单词进行编辑修正' }
+        const wordPack = this.ctx.request.body    //获取的单词编辑数据
+        const id = this.ctx.params.id
+        const row = {
+            id,
+            ...wordPack
+        }
+        const result = await this.app.mysql.update('words', row)
+        if (result.affectedRows > 0) {
+            this.ctx.body = { status: 200, msg: 'update success' }
+        } else {
+            this.ctx.body = { status: 404, msg: '没有此单词' }
+        }
     }
 
     //在数据库删除某个单词
     async deleteWordById() {
         //获取传过来的单词id,删除这个单词
         const id = this.ctx.params.id
-        const result = await this.app.mysql.delete('words', { id})
-        if(result.affectedRows > 0) {
+        const result = await this.app.mysql.delete('words', { id })
+        if (result.affectedRows > 0) {
             this.ctx.body = { status: 200, msg: 'delete success' }
-        }else {
+        } else {
             this.ctx.body = { status: 403, msg: 'delete fail' }
         }
     }
@@ -59,11 +70,41 @@ class WordController extends Controller {
     //根据单词名称查询单词
     async searchWordByName() {
         //获取穿过来的单词，进行查询
-        this.ctx.body = { msh: 'test success' }
+        const wordName = this.ctx.query.wordName || ''
+        if (wordName) {
+            const result = await this.app.mysql.select('words', {
+                where: { wordName },
+            })
+            if (result.length != 0) {
+                this.ctx.body = { status: 200, word: result[0] }
+            } else {
+                this.ctx.body = { status: 404, msg: '没有这个单词' }
+            }
+        } else {
+            this.ctx.body = { status: 403, msg: '传参不正确' }
+        }
+    }
+
+    //根据单词id查询单词，编辑单词时需要
+    async searchWordById() {
+        //获取穿过来的单词，进行查询
+        const id = this.ctx.params.id || ''
+        if (id) {
+            const result = await this.app.mysql.select('words', {
+                where: { id },
+            })
+            if (result.length != 0) {
+                this.ctx.body = { status: 200, word: result[0] }
+            } else {
+                this.ctx.body = { status: 404, msg: '没有这个单词' }
+            }
+        } else {
+            this.ctx.body = { status: 403, msg: '传参不正确' }
+        }
     }
 
     //数据库去重  效率很高 
-    async deduplication() {
+    async wordDeduplication() {
         const { ctx } = this;
         const mysql = this.app.mysql
         const sql = `
@@ -78,16 +119,23 @@ class WordController extends Controller {
         ( SELECT max( tb.id ) AS maxid FROM words AS tb WHERE ta.wordName = tb.wordName ) t 
         );
         `
-        const res = mysql.query(sql)
-        ctx.body = { res }
+        const res = await mysql.query(sql)
+        if (res.affectedRows > 0) {
+            ctx.body = { status: 200, msg: 'deduplication ok ' }
+        } else {
+            ctx.body = { status: 403, msg: '数据库是干净的' }
+        }
     }
 
     //把单词全部删除 有时为了调整词库 这是一个逃生舱，可以考虑是否提供给后台管理系统
-    async batchDelete() {
-        const { ctx } = this;
+    async batchDeleteWord() {
         const mysql = this.app.mysql
-        const res = await mysql.delete('words', {})
-        ctx.body = { res }
+        const result = await mysql.delete('words', {})
+        if (result.affectedRows > 0) {
+            this.ctx.body = { status: 200, msg: 'delete success' }
+        } else {
+            this.ctx.body = { status: 403, msg: '数据库已经没有单词了' }
+        }
     }
 }
 
