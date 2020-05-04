@@ -11,6 +11,11 @@ import {
 } from '@ant-design/icons';
 import '../static/css/AdminIndex.css'
 import Word from './words/Word';
+import Carousel from './carousel/Carousel';
+import WriteGuide from './writeGuide/WriteGuide'
+import WriteQuestion from './writeQuestion/WriteQuestion'
+import AppUser from './appUser/AppUser'
+import TestPage from './TestPage'
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -30,6 +35,10 @@ function AdminIndex(props) {
     '/index': '后台管理',
     '/index/word': '单词管理',
     '/index/video': '视频管理',
+    '/index/carousel': '首页轮播图管理',
+    '/index/appUser': '小程序用户管理',
+    '/index/writeGuide': '作文指南管理',
+    '/index/writeQuestion': '作文真题管理',
   };
   const pathSnippets = props.location.pathname.split('/').filter(i => i)
   const extraBreadcrumbItems = pathSnippets.map((_, index) => {
@@ -48,10 +57,10 @@ function AdminIndex(props) {
 
 
   const handleClickArticle = e => {
-    if (e.key === 'addArticle') {
-      props.history.push('/index/add')
+    if (e.key === 'writeQuestion') {
+      props.history.push('/index/writeQuestion')
     } else {
-      props.history.push('/index/list')
+      props.history.push('/index/writeGuide')
     }
   }
   
@@ -86,7 +95,7 @@ function AdminIndex(props) {
           </Menu.Item>
           <Menu.Item key="3">
           <PictureOutlined />
-            <Link to="/index/list">首页轮播图管理</Link>
+            <Link to="/index/carousel">首页轮播图管理</Link>
           </Menu.Item>
           <SubMenu
             key="sub1"
@@ -98,12 +107,16 @@ function AdminIndex(props) {
               </span>
             }
           >
-            <Menu.Item key="addArticle"><Link to="/index/add">写作真题</Link></Menu.Item>
-            <Menu.Item key="articleList"><Link to="/index/list">写作指南</Link></Menu.Item>
+            <Menu.Item key="writeQuestion"><Link to="/index/writeQuestion">写作真题</Link></Menu.Item>
+            <Menu.Item key="writeGuide"><Link to="/index/writeGuide">写作指南</Link></Menu.Item>
           </SubMenu>
           <Menu.Item key="9">
           <UserOutlined />
-            <span>用户管理</span>
+          <Link to="/index/appUser">用户管理</Link>
+          </Menu.Item>
+          <Menu.Item key="10">
+          <UserOutlined />
+          <Link to="/index/test">测试页面</Link>
           </Menu.Item>
         </Menu>
       </Sider>
@@ -118,6 +131,11 @@ function AdminIndex(props) {
               {/* 这个页面的子路由 */}
               <Route path="/index/video" component={Video} />
               <Route path="/index/word" component={Word} />
+              <Route path="/index/carousel" component={Carousel} />
+              <Route path="/index/writeGuide" component={WriteGuide} />
+              <Route path="/index/writeQuestion" component={WriteQuestion} />
+              <Route path="/index/appUser" component={AppUser} />
+              <Route path="/index/test" component={TestPage} />
             </div>
           </div>
         </Content>
