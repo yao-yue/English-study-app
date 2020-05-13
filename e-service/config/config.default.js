@@ -46,7 +46,8 @@ module.exports = appInfo => {
 
   //开启上传文件配置
   config.multipart = {
-    mode: 'file'
+    mode: 'file',
+    fileSize: '500mb',//文件上传的大小限制
   }
 
   // add your user config here
