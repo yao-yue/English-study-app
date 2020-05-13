@@ -33,6 +33,18 @@ class CarouselController extends Controller {
     }
     //添加首页轮播图
     async addCarousel() {
+        //数量校验，如果不通过就拒绝添加
+        let carousel = await client.list({
+            prefix: 'carousel/'
+          });
+          const carouselCount = carousel.objects ? carousel.objects.length : -1
+        if(carouselCount !== -1 && carouselCount >= 5) {
+            this.ctx.body = {
+                code: 403,
+                msg: '首页轮播图最大上限为5张，若要新增请删除之前的图片'
+            }
+            return
+        }
         const imgFile = this.ctx.request.files[0];    //获取的图片文件
         const suffix = imgFile.filename.replace(/[^\.]\w*/, '')
         const time = new Date()
@@ -55,7 +67,14 @@ class CarouselController extends Controller {
     }
     //删除首页轮播图
     async deleteCarouselByName() {
-        const filename =   this.ctx.query.filename || ''
+        const {filename} =  this.ctx.query
+        if(!filename) {
+            this.ctx.body = {
+                code: 403,
+                msg: '传参未接收到'
+            }
+            return
+        }
         const result = await client.delete('carousel/'+ filename);
         this.ctx.body = {
             code: 200,

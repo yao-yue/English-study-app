@@ -17,3 +17,8 @@ export const searchWordByName = (wordName) => ajax(BASE + '/searchWordByName', {
 export const searchWordById = (id) => ajax(BASE + '/searchWordById/'+id,{},'GET' )
 export const batchDeleteWord = () => ajax(BASE + '/batchDeleteWord', {}, 'DELETE')
 export const wordDeduplication = () => ajax(BASE + '/wordDeduplication', {}, 'PUT')
+
+//首页轮播图
+export const getCarousel = () => ajax(BASE + '/getCarousel')
+// export const addCarousel = (filename) => ajax(BASE + '/addCarousel', {filename}, 'POST')
+export const deleteCarouselByName = (filename) => ajax(BASE + '/deleteCarouselByName',{filename}, 'DELETE')

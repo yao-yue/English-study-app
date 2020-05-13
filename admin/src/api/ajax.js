@@ -18,7 +18,10 @@ export default function ajax(url, data = {}, method = 'GET') {
         } else if (method === 'POST') {
             result = axios.post(url, data)
         } else if (method === 'DELETE') {
-            result = axios.delete(url, data)
+            console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+            console.log('ajax里的数据',data)
+            console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+            result = axios.delete(url, {params:data})
         } else if (method === 'PUT') {
             result = axios.put(url, data)
         }

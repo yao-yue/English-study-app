@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect} from 'react'
 import { Upload, Modal, message, Button, Table } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { getCarousel,deleteCarouselByName } from '../../api'
 const { Dragger } = Upload;
 
 //图片操作
@@ -13,40 +14,26 @@ function getBase64(file) {
     });
 }
 function Carousel() {
+    //自我逻辑
+    const [carouselList, setCarouselList] = useState([])
     //逻辑state
     const [previewVisible, setPreviewVisible] = useState(false)
     const [previewImage, setPreviewImage] = useState('')
     const [previewTitle, setPreviewTitle] = useState('')
-    const fileListInit = [{
-        uid: '-1',
-        name: 'image.png',
-        status: 'done',
-        url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-    },
-    {
-        uid: '-2',
-        name: 'image.png',
-        status: 'done',
-        url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-    },
-    {
-        uid: '-3',
-        name: 'image.png',
-        status: 'done',
-        url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-    },
-    {
-        uid: '-4',
-        name: 'image.png',
-        status: 'done',
-        url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-    },
-    {
-        uid: '-5',
-        name: 'image.png',
-        status: 'error',
-    },]
-    const [fileList, setFileList] = useState(fileListInit)
+    const fileListInit = [
+    // {
+    //     uid: '-4',
+    //     name: 'image.png',
+    //     status: 'done',
+    //     url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+    // },
+    // {
+    //     uid: '-5',
+    //     name: 'image.png',
+    //     status: 'error',
+    // },
+]
+    const [fileList, setFileList] = useState([])
     const handleCancel = () => setPreviewVisible(false);
     const handlePreview = async file => {
         if (!file.url && !file.preview) {
@@ -57,7 +44,12 @@ function Carousel() {
         setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1))
     };
 
-    const handleChange = ({ fileList }) => setFileList(fileList);
+    const handleChange = ({ fileList }) => {
+        setFileList(fileList)
+        console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+        console.log(fileList)
+        console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    };
     const uploadButton = (
         <div>
             <PlusOutlined />
@@ -65,50 +57,61 @@ function Carousel() {
         </div>
     );
 
-
-    const list = [
-        {
-            img: 'http://ww1.sinaimg.cn/large/006x4mSygy1gef2m6sqi8j30dw0dpgm4.jpg',
-            key: 1,
-        },
-        {
-            img: 'http://ww1.sinaimg.cn/large/006x4mSygy1gef2tba4uoj30dw08q3yw.jpg',
-            key: 2
-        },
-        {
-            img: 'http://ww1.sinaimg.cn/large/006x4mSygy1gef2tba4uoj30dw08q3yw.jpg',
-            key: 3
+    const getCarouselList = async() => {
+        const result = await getCarousel()
+        const list = result.data.list?result.data.list:[]
+        if(list.length > 0) {
+            for(let i = 0; i< list.length; i++) {
+                list[i] = {
+                    url: list[i],
+                    key: i+1,
+                    uid: -(i+1),
+                    name: list[i].match(/[^\/]+$/)[0].split('?')[0],
+                    status: 'done'
+                }
+            }
+            setCarouselList(list)
+            setFileList(list)
         }
-    ]
+    }
+    const deleteCarousel = async(filename) => {
+        const res = await deleteCarouselByName(filename)
+        //删除之后要重新拉取下数据
+        getCarouselList()
+    }
+    
+    useEffect(() => {
+        getCarouselList()
+      }, [])
     const columns = [
         {
             title: '轮播图展示',
-            dataIndex: 'img',
-            key: 'img',
-            render: (img) => (
+            dataIndex: 'url',
+            key: 'url',
+            render: (url) => (
                 <div>
-                    <img src={img} alt="首页轮播图" style={{ width: "200px", height: "100%" }} />
+                    <img src={url} alt="首页轮播图" style={{ width: "200px", height: "100%" }} />
                 </div>
             ),
         },
         {
             title: '操作',
-            dataIndex: 'id',
+            dataIndex: 'name',
             key: 'action',
-            render: (id) => (
+            render: (name) => (
                 <div>
-                    <Button onClick={() => console.log('delete')}>删除</Button>
+                    <Button onClick={() => deleteCarousel(name)}>删除</Button>
                 </div>
             ),
         },
     ];
     return (
         <div>
-            <Table dataSource={list} columns={columns} />
+            <Table dataSource={carouselList} columns={columns} />
 
             <h2>上传图片</h2>
             <Upload
-                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                action="http://127.0.0.1:7001/admin/addCarousel"
                 listType="picture-card"
                 fileList={fileList}
                 onPreview={handlePreview}
