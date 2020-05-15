@@ -15,7 +15,6 @@ import Carousel from './carousel/Carousel';
 import WriteGuide from './writeGuide/WriteGuide'
 import WriteQuestion from './writeQuestion/WriteQuestion'
 import AppUser from './appUser/AppUser'
-import TestPage from './TestPage'
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -39,6 +38,8 @@ function AdminIndex(props) {
     '/index/appUser': '小程序用户管理',
     '/index/writeGuide': '作文指南管理',
     '/index/writeQuestion': '作文真题管理',
+    '/index/video/addVideo': '添加视频',
+    '/index/video/editVideo': '编辑视频'
   };
   const pathSnippets = props.location.pathname.split('/').filter(i => i)
   const extraBreadcrumbItems = pathSnippets.map((_, index) => {
@@ -114,10 +115,6 @@ function AdminIndex(props) {
           <UserOutlined />
           <Link to="/index/appUser">用户管理</Link>
           </Menu.Item>
-          <Menu.Item key="10">
-          <UserOutlined />
-          <Link to="/index/test">测试页面</Link>
-          </Menu.Item>
         </Menu>
       </Sider>
       <Layout>
@@ -135,7 +132,6 @@ function AdminIndex(props) {
               <Route path="/index/writeGuide" component={WriteGuide} />
               <Route path="/index/writeQuestion" component={WriteQuestion} />
               <Route path="/index/appUser" component={AppUser} />
-              <Route path="/index/test" component={TestPage} />
             </div>
           </div>
         </Content>

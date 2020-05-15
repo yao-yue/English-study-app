@@ -7,6 +7,10 @@ class WriteGuideController extends Controller {
         const writeGuideList = await this.app.mysql.query(`select * from write_guide`)
         if (writeGuideList.length > 0) {
             writeGuideList.map(item => {
+                // item.basicKnowledge = item.basicKnowledge.slice(1,item.basicKnowledge.length-1).split(',')
+                // item.reviewMethod = item.reviewMethod.slice(1,item.reviewMethod.length-1).split(',')
+                // item.solveSkill = item.solveSkill.slice(1,item.solveSkill.length-1).split(',')
+                // item.actualCombatSkill = item.actualCombatSkill.slice(1,item.actualCombatSkill.length-1).split(',')
                 item.basicKnowledge = item.basicKnowledge.split(',')
                 item.reviewMethod = item.reviewMethod.split(',')
                 item.solveSkill = item.solveSkill.split(',')

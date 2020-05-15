@@ -1,7 +1,7 @@
-import React, { useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import { Upload, Modal, message, Button, Table } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { getCarousel,deleteCarouselByName } from '../../api'
+import { getCarousel, deleteCarouselByName } from '../../api'
 const { Dragger } = Upload;
 
 //图片操作
@@ -21,18 +21,18 @@ function Carousel() {
     const [previewImage, setPreviewImage] = useState('')
     const [previewTitle, setPreviewTitle] = useState('')
     const fileListInit = [
-    // {
-    //     uid: '-4',
-    //     name: 'image.png',
-    //     status: 'done',
-    //     url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-    // },
-    // {
-    //     uid: '-5',
-    //     name: 'image.png',
-    //     status: 'error',
-    // },
-]
+        // {
+        //     uid: '-4',
+        //     name: 'image.png',
+        //     status: 'done',
+        //     url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+        // },
+        // {
+        //     uid: '-5',
+        //     name: 'image.png',
+        //     status: 'error',
+        // },
+    ]
     const [fileList, setFileList] = useState([])
     const handleCancel = () => setPreviewVisible(false);
     const handlePreview = async file => {
@@ -46,9 +46,19 @@ function Carousel() {
 
     const handleChange = ({ fileList }) => {
         setFileList(fileList)
-        console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-        console.log(fileList)
-        console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+        if (fileList.length < carouselList.length) {
+            //找到删除了的图片进行删除
+            // const filename = carouselList.pop().name
+            carouselList.forEach(item => {
+                if(fileList.indexOf(item) < 0) {
+                    deleteCarousel(item.name)
+                }
+            })
+            
+        } else if (fileList.length > carouselList.length || fileList.length === 0) {
+            getCarouselList()
+        }
+
     };
     const uploadButton = (
         <div>
@@ -57,32 +67,39 @@ function Carousel() {
         </div>
     );
 
-    const getCarouselList = async() => {
+    const getCarouselList = async () => {
         const result = await getCarousel()
-        const list = result.data.list?result.data.list:[]
-        if(list.length > 0) {
-            for(let i = 0; i< list.length; i++) {
+        const list = result.data.list ? result.data.list : []
+        if (list.length > 0) {
+            for (let i = 0; i < list.length; i++) {
                 list[i] = {
                     url: list[i],
-                    key: i+1,
-                    uid: -(i+1),
+                    key: i + 1,
+                    uid: -(i + 1),
                     name: list[i].match(/[^\/]+$/)[0].split('?')[0],
                     status: 'done'
                 }
             }
             setCarouselList(list)
             setFileList(list)
+        } else if (list.length === 0) {
+            setCarouselList([])
+            setFileList([])
         }
     }
-    const deleteCarousel = async(filename) => {
+    const deleteCarousel = async (filename) => {
         const res = await deleteCarouselByName(filename)
         //删除之后要重新拉取下数据
         getCarouselList()
     }
-    
+
     useEffect(() => {
         getCarouselList()
-      }, [])
+    }, [])
+    useEffect(() => {
+        //监听fileList， 以免有的时候异步的时候出问题
+        getCarouselList()
+    }, [fileList])
     const columns = [
         {
             title: '轮播图展示',

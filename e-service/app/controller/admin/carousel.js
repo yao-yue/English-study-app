@@ -17,10 +17,21 @@ class CarouselController extends Controller {
             prefix: 'carousel/'
           });
         //获取获取文件的链接
-        const list = result.objects.map(item => {
+        const objects = result.objects?result.objects:[]
+        if(objects.length === 0) {
+            this.ctx.body = {
+                code: 200,
+                data: {
+                    list: [],
+                    msg: '没有数据'
+                }
+            }
+            return 
+        }
+        const list = objects.map(item => {
             return client.signatureUrl(item.name, {
                 expires: 3600,
-                process: 'image/resize,w_200'
+                // process: 'image/resize,w_200'   不要压缩
             })
         })
         this.ctx.body = {
