@@ -80,7 +80,7 @@ function Word(props) {
   //通过id删除单词
   const deleteWord = async (id) => {
     const res = await deleteWordById(id)
-    if (res.status == 200) {
+    if (res.status === 200) {
       //重新拉取数据，更新页面
       getList()
       message.success('删除成功')

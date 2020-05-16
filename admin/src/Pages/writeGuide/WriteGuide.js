@@ -3,7 +3,9 @@ import React, { useState, useEffect } from 'react'
 import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { getWriteGuideList, editWriteGuideById, addWriteGuide } from '../../api'
-
+//富文本编辑器
+import BraftEditor from 'braft-editor'
+import 'braft-editor/dist/index.css'
 const { Option } = Select;
 
 
@@ -27,19 +29,12 @@ function WriteGuide(props) {
         solveSkill: ["大作文Opinion题型技巧", "大作文Report题型技巧", "大作文审题技巧", "大作文导入段的非模板写法", "大作文立论方法", "大作文主体段写法", "大作文结尾段多种写法", "A类小作文技巧", "G类小作文技巧"],
         actualCombatSkill: ["考场第一环一一审题", "考场也可用模板", "大小作文谁先写", "大作文时间分配表", "小作文信息审核表", "写作烂句大盘点"]
     }
-    // const frameAddKey = Object.values(frame).map(item => {
-    //     return item.map((ele, index) => {
-    //         return {
-    //             key : index,
-    //             value : ele
-    //         }
-    //     })
-    // })
-    // console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-    // console.log(frameAddKey)
-    // console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
     const [currentFrame, setCurrentFrame] = useState(frame.basicKnowledge)
     const [formInitData, setFormInitData] = useState({})
+    //富文本编辑器   
+    //内容转化方式    BraftEditor.createEditorState(htmlContent)
+    //               htmlContent = editorState.toHTML()
+    const [editorState, setEditState] = useState(null)
 
 
     //表单动作处理
@@ -51,6 +46,7 @@ function WriteGuide(props) {
                 list = []
                 return
             }
+            item = item.toHTML()
             list.push(item)
         }
         setDrawerViseable(false)
@@ -107,6 +103,14 @@ function WriteGuide(props) {
         let temp = []
         for (let key in wgData) {
             for (let inkey in wgData[key]) {
+                if (typeof (wgData[key][inkey]) !== 'string') {
+                    wgData[key][inkey] = wgData[key][inkey].toHTML()
+                }
+                if (wgData[key][inkey].length > 20000) {
+                    const str = wgData[key][inkey].replace(/\,/,'escapeComma')
+                    //原地操作会有问题， 用一个变量保存一下再赋值比较好
+                    wgData[key][inkey] = str
+                }
                 temp.push(wgData[key][inkey])
             }
             wgData[key] = temp
@@ -131,21 +135,33 @@ function WriteGuide(props) {
         for (let key in initData) {
             if (initData[key].length) {
                 initData[key].forEach((ele, index) => {
-                    tempObj[index] = ele.replace(/\'/g, '')
+                    // replace(/base64,/,'escapeComma9958')
+                    let escape = ele.replace(/\'/g, '')
+                    if(escape.length > 20000) {
+                        const estemp = escape.replace(/escapeComma/, ',')
+                        escape = estemp
+                    }
+                    tempObj[index] = BraftEditor.createEditorState(escape)
                 })
                 initData[key] = tempObj
                 tempObj = {}
             }
         }
+
         setInitData(initData)
         setBasicKnowledge(initData.basicKnowledge)
         setReviewMethod(initData.reviewMethod)
         setSolveSkill(initData.solveSkill)
         setActualCombatSkill(initData.actualCombatSkill)
-        console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-        console.log(initData)
-        console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
     }
+
+    //富文本编辑器
+    const handleEditorChange = async (value) => {
+        // console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+        // console.log(value.toHTML())
+        // console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    }
+
     useEffect(() => {
         //初始化操作
         getInitData()
@@ -204,7 +220,7 @@ function WriteGuide(props) {
             </Row>
             <Drawer
                 title={currentDrawer}
-                width={720}
+                width={800}
                 onClose={() => setDrawerViseable(false)}
                 visible={drawerVisable}
                 bodyStyle={{ paddingBottom: 80 }}
@@ -220,7 +236,7 @@ function WriteGuide(props) {
                     onFinish={onFinish}
                     onFinishFailed={onFinishFailed}
                 >
-                    <Row gutter={[18, 24]}>
+                    <Row gutter={[24, 24]}>
                         {currentFrame.map((item, index) => {
                             return (
                                 <Col span={24} key={index}>
@@ -228,7 +244,16 @@ function WriteGuide(props) {
                                         label={item}
                                         name={index}
                                     >
-                                        <Input.TextArea rows={4} initialvalues={formInitData[`${index}`]} />
+                                        <BraftEditor
+                                            style={{ border: '1px solid #e1e1e1', width: '700px' }}
+                                            value={editorState}
+                                            // defaultValue={formInitData[`${index}`]}
+                                            onChange={handleEditorChange}
+                                            onSave={() => {
+                                                message.success('ctrl + s, 成功保存')
+                                            }}
+                                        />
+                                        {/* <Input.TextArea rows={4} initialvalues={formInitData[`${index}`]} /> */}
                                     </Form.Item>
                                 </Col>
                             )

@@ -11,6 +11,7 @@ class WriteGuideController extends Controller {
                 // item.reviewMethod = item.reviewMethod.slice(1,item.reviewMethod.length-1).split(',')
                 // item.solveSkill = item.solveSkill.slice(1,item.solveSkill.length-1).split(',')
                 // item.actualCombatSkill = item.actualCombatSkill.slice(1,item.actualCombatSkill.length-1).split(',')
+                //出现了一个问题  图片base64中的,会出问题 如：img src="data:image/png;base64,xxxx 初步考虑存数据的时候转码一下
                 item.basicKnowledge = item.basicKnowledge.split(',')
                 item.reviewMethod = item.reviewMethod.split(',')
                 item.solveSkill = item.solveSkill.split(',')
@@ -34,6 +35,7 @@ class WriteGuideController extends Controller {
             this.ctx.body = { status: 404, msg: '资源不存在' }
             return 
         }
+        await this.app.mysql.query('set names utf8mb4')
         const setResult = await this.app.mysql.insert('write_guide', wg)
         if(setResult.affectedRows > 0) {
             this.ctx.body = { 
@@ -59,6 +61,8 @@ class WriteGuideController extends Controller {
             id,
             ...wg
         }
+        //解决表情存储问题
+        await this.app.mysql.query('set names utf8mb4')
         const result = await this.app.mysql.update('write_guide', row)
         if (result.affectedRows > 0) {
             this.ctx.body = { status: 200, msg: 'update success' }

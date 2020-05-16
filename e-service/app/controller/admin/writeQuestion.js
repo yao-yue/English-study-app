@@ -4,8 +4,8 @@ const Controller = require('egg').Controller
 class WriteQuestionController extends Controller {
     //获取写作真题列表
     async getWriteQuestionList() {
-        const writeGuideList = await this.app.mysql.query(`select * from write_questions`)
-        this.ctx.body = {code:200, writeGuideList}
+        const wqList = await this.app.mysql.query(`select * from write_questions`)
+        this.ctx.body = {code:200, wqList}
     }
     //添加写作真题
     async addWriteQuestion() {
@@ -55,7 +55,7 @@ class WriteQuestionController extends Controller {
                 where: { type },
             })
             if (result.length != 0) {
-                this.ctx.body = { status: 200, word: result }
+                this.ctx.body = { status: 200, data: result }
             } else {
                 this.ctx.body = { status: 404, msg: '没有这个资源' }
             }
@@ -64,7 +64,7 @@ class WriteQuestionController extends Controller {
                 where: { sourceTime },
             })
             if (result.length != 0) {
-                this.ctx.body = { status: 200, word: result }
+                this.ctx.body = { status: 200, data: result }
             } else {
                 this.ctx.body = { status: 404, msg: '没有这个资源' }
             }
@@ -73,7 +73,7 @@ class WriteQuestionController extends Controller {
                 where: { topic },
             })
             if (result.length != 0) {
-                this.ctx.body = { status: 200, word: result }
+                this.ctx.body = { status: 200, data: result }
             } else {
                 this.ctx.body = { status: 404, msg: '没有这个资源' }
             }

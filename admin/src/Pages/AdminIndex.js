@@ -39,7 +39,9 @@ function AdminIndex(props) {
     '/index/writeGuide': '作文指南管理',
     '/index/writeQuestion': '作文真题管理',
     '/index/video/addVideo': '添加视频',
-    '/index/video/editVideo': '编辑视频'
+    '/index/video/editVideo': '编辑视频',
+    '/index/writeQuestion/addWQ': '添加作文真题',
+    '/index/writeQuestion/editWQ': '编辑作文真题'
   };
   const pathSnippets = props.location.pathname.split('/').filter(i => i)
   const extraBreadcrumbItems = pathSnippets.map((_, index) => {

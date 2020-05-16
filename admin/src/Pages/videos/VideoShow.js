@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect,useRef } from 'react';
-import '../../static/css/ArticleList.css'
 import { Modal, message, Button, Table, Input, Row, Col } from 'antd';
 import { getVideoList , deleteVideoById, ossDelete, searchVideoByType} from '../../api'
 const moment = require('moment')

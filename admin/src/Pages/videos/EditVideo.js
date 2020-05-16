@@ -3,6 +3,7 @@ import { Form, Input, Button, message, Upload } from 'antd';
 import { LoadingOutlined, PlusOutlined,UploadOutlined } from '@ant-design/icons';
 import { editVideoById } from '../../api'
 
+
 //图片处理函数
 function getBase64(img, callback) {
     const reader = new FileReader();
@@ -38,6 +39,7 @@ function EditVideo(props) {
     const [loading, setLoading] = useState(false)
     const [imgName, setImgName] = useState('')
     const [videoName, setVideoName] = useState('')
+
 
     //表单动作处理
     const onFinish = async (values) => {

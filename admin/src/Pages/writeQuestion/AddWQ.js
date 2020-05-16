@@ -1,26 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { Form, Input, Button, message, Upload } from 'antd';
-import { LoadingOutlined, PlusOutlined,UploadOutlined } from '@ant-design/icons';
-import { addVideo } from '../../api'
+import { Form, Input, Button, DatePicker, Select, message } from 'antd';
+import { addWriteQuestion, } from '../../api'
+import moment from 'moment';
+//富文本编辑器
+import BraftEditor from 'braft-editor'
+import 'braft-editor/dist/index.css'
 
-//图片处理函数
-function getBase64(img, callback) {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result));
-    reader.readAsDataURL(img);
-}
+const dateFormat = 'YYYY-MM-DD';
+const { Option } = Select;
 
-function beforeUpload(file) {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-    if (!isJpgOrPng) {
-        message.error('You can only upload JPG/PNG file!');
-    }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-        message.error('Image must smaller than 2MB!');
-    }
-    return isJpgOrPng && isLt2M;
-}
 
 
 
@@ -30,139 +18,115 @@ function AddWQ(props) {
         wrapperCol: { span: 16 },
     };
     //表单域的数据收集
-    const [videoForm] = Form.useForm();
-    const [video, setVideo] = useState({})
-    const [videoImg, setVideoImg] = useState('')
-    const [loading, setLoading] = useState(false)
-    const [imgName, setImgName] = useState('')
-    const [videoName, setVideoName] = useState('')
+    const [wqForm] = Form.useForm();
+    const [writeQuestion, setWriteQuestion] = useState({})
+    //富文本编辑器   
+    //内容转化方式    BraftEditor.createEditorState(htmlContent)
+    //               htmlContent = editorState.toHTML()
+    const [editorState, setEditState] = useState(null)
 
     //表单动作处理
     const onFinish = async (values) => {
-        if(!imgName || !videoName) {
-            message.error('数据填写不完整')
-            return
+        if(!values.sourceTime || !values.topic || !values.type || !values.content ) {
+            message.error('表单未填写完整,请检查')
+            return 
         }
-        const video = {
-            ...values,
-            file: videoName,
-            showImg: imgName,
-            addTime: new Date().getTime().toString().slice(0,10)
-        }
-        const result = await addVideo(video)
-        if(result.code === 200) {
-            props.history.replace('/index/video')
+        const wqPack = values
+        wqPack.sourceTime = wqPack.sourceTime.format('Y-MM-DD')
+        wqPack.modelEssay = wqPack.modelEssay.toHTML()
+        const res = await addWriteQuestion(wqPack)
+        if(res.code === 200) {
+            message.success('提交成功')
+            props.history.replace('/index/writeQuestion')
         }
     };
     const onFinishFailed = errorInfo => {
         console.log('Failed:', errorInfo);
     };
     const onReset = () => {
-        console.log('数据重置')
-        videoForm.setFieldsValue(video);
+
     }
 
-    //上传图片相关
-    const handleChange = (info) => {
+    const handleOptionChange = (value) => {
+        console.log(`selected ${value}`);
+    }
 
-        //获取文件名以便存储 
-        const imgName = info.file.response ? info.file.response.data.filename : ''
-        if (info.file.status === 'uploading') {
-            setLoading(true)
-            return;
-        }
-        if (info.file.status === 'done') {
-            // Get this url from response in real world.
-            getBase64(info.file.originFileObj, imageUrl => {
-                setLoading(false)
-                setVideoImg(imageUrl)
-                setImgName(imgName)
-            }
-            );
-        }
-    };
-    const uploadButton = (
-        <div>
-            {loading ? <LoadingOutlined /> : <PlusOutlined />}
-            <div className="ant-upload-text">Upload</div>
-        </div>
-    );
-
-    //上传视频相关
-    const uploadVideoProps = {
-        name: 'file',
-        action:"http://127.0.0.1:7001/admin/uploadVideo",
-        headers: {
-          authorization: 'authorization-text',
-        },
-        onChange(info) {
-          if (info.file.status !== 'uploading') {
-            console.log(info.file, info.fileList);
-          }
-          if (info.file.status === 'done') {
-            message.success(`${info.file.name} file uploaded successfully`);
-            //获取文件名以便存储 
-            const videoName = info.file.response ? info.file.response.data.filename : ''
-            setVideoName(videoName)
-          } else if (info.file.status === 'error') {
-            message.error(`${info.file.name} file upload failed.`);
-          }
-        },
-      };
+    //富文本相关
+    const handleEditorChange = (editorState) => {
+        setEditState(editorState)
+    }
 
     //处理数据同步问题
     useEffect(() => {
-        videoForm.setFieldsValue(video);
-    }, [video])
+        wqForm.setFieldsValue(writeQuestion);
+    }, [writeQuestion])
+
+    useEffect(() => {
+        //初始化
+    }, [])
     return (
         <div>
             <Form
                 {...layout}
-                name="videoForm"
-                form={videoForm}
-                initialValues={video}
+                name="wqForm"
+                form={wqForm}
+                initialValues={writeQuestion}
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
             >
                 <Form.Item
-                    label="视频标题"
-                name="title"
+                    label="真题出自时间"
+                    name="sourceTime"
                 >
-                    <Input />
+                    {/* <DatePicker initialvalues={moment('2015-01-01', dateFormat)} format={dateFormat} /> */}
+                    <DatePicker format={dateFormat} />
                 </Form.Item>
                 <Form.Item
-                    label="视频类型"
-                name="type"
+                    label="真题主题"
+                    name="topic"
                 >
-                    <Input />
+                    <Select defaultValue="选择主题" style={{ width: 240 }} onChange={handleOptionChange}>
+                        <Option value="社会发展/生活">社会发展/生活</Option>
+                        <Option value="环境/动物保护">环境/动物保护</Option>
+                        <Option value="教育">教育</Option>
+                        <Option value="媒体">媒体</Option>
+                        <Option value="职业工作">职业工作</Option>
+                        <Option value="犯罪">犯罪</Option>
+                        <Option value="政府职能">政府职能</Option>
+                        <Option value="多元化/国际化">多元化/国际化</Option>
+                        <Option value="科技">科技</Option>
+                        <Option value="旅游">旅游</Option>
+                        <Option value="文化">文化</Option>
+                    </Select>
                 </Form.Item>
                 <Form.Item
-                    label="视频时长"
-                name="timeLength"
+                    label="真题类型"
+                    name="type"
                 >
-                    <Input suffix="秒"/> 
+                    <Select defaultValue="请选择类型" style={{ width: 240 }} onChange={handleOptionChange}>
+                        <Option value="A类大作文">A类大作文</Option>
+                        <Option value="A类小作文">A类小作文</Option>
+                    </Select>
                 </Form.Item>
                 <Form.Item
-                    label="视频首图"
+                    label="真题题目"
+                    name="content"
                 >
-                    <Upload
-                        // name="videoImg"
-                        listType="picture-card"
-                        className="videoImg-uploader"
-                        showUploadList={false}
-                        action="http://127.0.0.1:7001/admin/uploadVideoImg"
-                        beforeUpload={beforeUpload}
-                        onChange={handleChange}
-                    >
-                        {videoImg ? <img src={videoImg} alt="videoImg" style={{ width: '100%' }} /> : uploadButton}
-                    </Upload>
+                    <Input.TextArea autoSize={{minRows: 4, maxRows: 6}} />
                 </Form.Item>
                 <Form.Item
-                    label="视频资源"
+                    label="真题范文"
+                    name="modelEssay"
                 >
-                    <Upload {...uploadVideoProps}>
-                        <Button><UploadOutlined /> 上传视频</Button>
-                    </Upload>,
+                     <BraftEditor
+                        style={{border:'2px solid #e1e1e1'}}
+                        value={editorState}
+                        onChange={handleEditorChange}
+                        onSave={() => {
+                            message.success('ctrl + s, 成功保存')
+                        }}
+                    />
+                    {/* <Input.TextArea autoSize={{minRows: 10, maxRows: 20}} /> */}
                 </Form.Item>
 
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }} >
