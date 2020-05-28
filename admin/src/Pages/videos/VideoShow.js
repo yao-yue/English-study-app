@@ -15,7 +15,7 @@ function VideoShow(props) {
   //视频控件
   const videoEl = useRef(null);
 
-  //得到文章列表
+  //得到视频列表
   const getList = async () => {
     const res = await getVideoList()
     // 公开课、专项课、系统提分课
@@ -99,10 +99,15 @@ function VideoShow(props) {
       key: 'type',
     },
     {
-      title: '添加时间',
-      dataIndex: 'addTime',
-      key: 'addTime',
+      title: '标签',
+      dataIndex: 'tag',
+      key: 'tag',
     },
+    // {
+    //   title: '添加时间',
+    //   dataIndex: 'addTime',
+    //   key: 'addTime',
+    // },
     {
       title: '视频长度',
       dataIndex: 'timeLength',

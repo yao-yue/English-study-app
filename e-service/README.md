@@ -84,3 +84,22 @@ ok  到这里就差不多大概的逻辑能理清楚了。把单词搞完再去�
 ### 对阿里云文件上传的方式的一些理解
 1. 关于STS方式，就是请求后端接口，然后后端返回crendental，然后凭借这个你可以构建出client来直接做一些操作，比如put文件到阿里云上面，而不是通过接口上传到后端，然后再让后端调用put上传到aliyun，可以避免一步操作
 2. 获取文件的访问权限，要不还是就用signUrl的方式把。
+
+
+### egg-mysql 分页
+计算公式 offset = page * limit - limit
+/**
+ * 分页查询
+ * @param offset 起始页
+ * @param limit 每页展示条数
+ * offset=page*limit-limit
+ */
+const query = {
+  offset: app.toInt(pageNum) * app.toInt(pageSize) - app.toInt(pageSize),
+  limit: app.toInt(pageSize)
+};
+return await app.model.Diary.findAndCountAll({ ...query, raw: true });
+关于node，还需要补充一点sequelize知识，最好是把npm上的一些小例子实验一下。
+
+为什么要sequelize，因为如果要增加一些字段的话还得重新弄数据库。就比较麻烦，而sequelize就能自动去做数据库那些。
+

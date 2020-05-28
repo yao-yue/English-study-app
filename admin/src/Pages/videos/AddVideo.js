@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Form, Input, Button, message, Upload } from 'antd';
+import { Form, Input, Button, message, Upload ,Select} from 'antd';
 import { LoadingOutlined, PlusOutlined,UploadOutlined } from '@ant-design/icons';
 import { addVideo } from '../../api'
 
+const { Option } = Select;
 //图片处理函数
 function getBase64(img, callback) {
     const reader = new FileReader();
@@ -110,6 +111,11 @@ function AddVideo(props) {
         },
       };
 
+    //select框
+    const handleOptionChange = (value) => {
+        console.log(`selected ${value}`);
+    }
+
     //处理数据同步问题
     useEffect(() => {
         videoForm.setFieldsValue(video);
@@ -133,6 +139,22 @@ function AddVideo(props) {
                 <Form.Item
                     label="视频类型"
                 name="type"
+                >
+                    <Select placeholder="选择类型" style={{ width: 240 }} onChange={handleOptionChange}>
+                        <Option value="公开课">公开课</Option>
+                        <Option value="训练营">训练营</Option>
+                        <Option value="录播课">录播课</Option>
+                    </Select>
+                </Form.Item>
+                <Form.Item
+                    label="视频老师"
+                name="teacher"
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    label="视频标签"
+                name="tag"
                 >
                     <Input />
                 </Form.Item>

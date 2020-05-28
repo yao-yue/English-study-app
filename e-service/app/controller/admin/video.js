@@ -82,16 +82,6 @@ class VideoController extends Controller {
     async addVideo() {
         //添加视频和上传视频不同，添加视频是把这条数据弄到数据库里面
         const videoPack = this.ctx.request.body    //获取的视频数据，然后把他们存入数据库即可
-        // 伪造下数据测试
-        // const addTime = new Date().getTime().toString()
-        // let videoPack = {
-        //     file: '15893424889909513.f632.mp4',
-        //     type: 'listen',
-        //     addTime: addTime.substr(0, 10),
-        //     title: '雅思听力答案词速挺--黄金500词大揭秘',
-        //     showImg: 'http://ww1.sinaimg.cn/large/006x4mSygy1gequ8pi2uqj301o01o3ya.jpg',
-        //     timeLength: '290'
-        // }
         const setResult = await this.app.mysql.insert('videos', videoPack)
         if(setResult.affectedRows > 0) {
             this.ctx.body = {

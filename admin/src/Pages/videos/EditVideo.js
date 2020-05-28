@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Form, Input, Button, message, Upload } from 'antd';
-import { LoadingOutlined, PlusOutlined,UploadOutlined } from '@ant-design/icons';
+import { Form, Input, Button, message, Upload, Select } from 'antd';
+import { LoadingOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { editVideoById } from '../../api'
 
-
+const { Option } = Select;
 //图片处理函数
 function getBase64(img, callback) {
     const reader = new FileReader();
@@ -47,13 +47,13 @@ function EditVideo(props) {
             ...values,
             file: videoName ? videoName : initData.file,
             showImg: imgName ? imgName : initData.showImg,
-            addTime: new Date().getTime().toString().slice(0,10)
+            addTime: new Date().getTime().toString().slice(0, 10)
         }
         //对url进行转义，获取文件名
         video.file = video.file.match(/[^\/]+$/)[0].split('?')[0]
         video.showImg = video.showImg.match(/[^\/]+$/)[0].split('?')[0]
         const result = await editVideoById(initData.id, video)
-        if(result.status === 200) {
+        if (result.status === 200) {
             props.history.replace('/index/video')
         }
     };
@@ -94,24 +94,28 @@ function EditVideo(props) {
     //上传视频相关
     const uploadVideoProps = {
         name: 'file',
-        action:"http://127.0.0.1:7001/admin/uploadVideo",
+        action: "http://127.0.0.1:7001/admin/uploadVideo",
         headers: {
-          authorization: 'authorization-text',
+            authorization: 'authorization-text',
         },
         onChange(info) {
-          if (info.file.status !== 'uploading') {
-            console.log(info.file, info.fileList);
-          }
-          if (info.file.status === 'done') {
-            message.success(`${info.file.name} file uploaded successfully`);
-            //获取文件名以便存储 
-            const videoName = info.file.response ? info.file.response.data.filename : ''
-            setVideoName(videoName)
-          } else if (info.file.status === 'error') {
-            message.error(`${info.file.name} file upload failed.`);
-          }
+            if (info.file.status !== 'uploading') {
+                console.log(info.file, info.fileList);
+            }
+            if (info.file.status === 'done') {
+                message.success(`${info.file.name} file uploaded successfully`);
+                //获取文件名以便存储 
+                const videoName = info.file.response ? info.file.response.data.filename : ''
+                setVideoName(videoName)
+            } else if (info.file.status === 'error') {
+                message.error(`${info.file.name} file upload failed.`);
+            }
         },
-      };
+    };
+    //select框
+    const handleOptionChange = (value) => {
+        console.log(`selected ${value}`);
+    }
 
     //处理数据同步问题
     useEffect(() => {
@@ -122,7 +126,7 @@ function EditVideo(props) {
     useEffect(() => {
         videoForm.setFieldsValue(video)
         setVideoImg(video.showImg)
-    },[])
+    }, [])
     return (
         <div>
             <Form
@@ -135,21 +139,37 @@ function EditVideo(props) {
             >
                 <Form.Item
                     label="视频标题"
-                name="title"
+                    name="title"
                 >
                     <Input initialvalues={video.title} />
                 </Form.Item>
                 <Form.Item
                     label="视频类型"
-                name="type"
+                    name="type"
                 >
-                     <Input initialvalues={video.type} />
+                    <Select placeholder={video.type} style={{ width: 240 }} onChange={handleOptionChange}>
+                        <Option value="公开课">公开课</Option>
+                        <Option value="训练营">训练营</Option>
+                        <Option value="录播课">录播课</Option>
+                    </Select>
+                </Form.Item>
+                <Form.Item
+                    label="视频老师"
+                    name="teacher"
+                >
+                    <Input initialvalues={video.teacher} />
+                </Form.Item>
+                <Form.Item
+                    label="视频标签"
+                    name="tag"
+                >
+                    <Input initialvalues={video.tag} />
                 </Form.Item>
                 <Form.Item
                     label="视频时长"
-                name="timeLength"
+                    name="timeLength"
                 >
-                    <Input initialvalues={video.timeLength} suffix="秒"/> 
+                    <Input initialvalues={video.timeLength} suffix="秒" />
                 </Form.Item>
                 <Form.Item
                     label="视频首图"

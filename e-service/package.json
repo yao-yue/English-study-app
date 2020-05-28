@@ -11,7 +11,8 @@
     "egg": "^2.15.1",
     "egg-cors": "^2.2.3",
     "egg-mysql": "^3.0.0",
-    "egg-scripts": "^2.11.0"
+    "egg-scripts": "^2.11.0",
+    "pm2": "^4.4.0"
   },
   "devDependencies": {
     "autod": "^3.0.1",
@@ -26,7 +27,7 @@
     "node": ">=10.0.0"
   },
   "scripts": {
-    "start": "egg-scripts start --daemon --title=egg-server-e-service",
+    "start": "egg-scripts start --daemon --port=9999 --title=egg-server-e-service",
     "stop": "egg-scripts stop --title=egg-server-e-service",
     "dev": "egg-bin dev",
     "debug": "egg-bin debug",

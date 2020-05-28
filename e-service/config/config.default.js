@@ -16,7 +16,10 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1587907720691_5432';
 
   // add your middleware config here
-  config.middleware = [];
+  config.middleware = ['setOrigin'];
+  config.setOrigin = {
+    whiteList: ['http://localhost:4001','http://localhost:4002'],
+  }
 
    //mysql配置
    config.mysql = {
