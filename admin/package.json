@@ -11,7 +11,7 @@
     "axios": "^0.19.2",
     "braft-editor": "^2.3.9",
     "marked": "^0.8.2",
-    "moment": "^2.25.3",
+    "moment": "^2.29.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
